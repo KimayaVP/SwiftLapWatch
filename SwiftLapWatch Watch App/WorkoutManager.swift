@@ -221,25 +221,35 @@ class WorkoutManager: NSObject, ObservableObject {
             }
         }
     // MARK: - Save to SwiftLap
-    private func saveWorkoutToSwiftLap() {
-        let workoutData: [String: Any] = [
-            "duration": elapsedSeconds,
-            "distance": distance,
-            "laps": lapCount,
-            "strokeCount": strokeCount,
-            "avgHeartRate": heartRates.isEmpty ? 0 : heartRates.reduce(0, +) / Double(heartRates.count),
-            "calories": calories,
-            "lapTimes": lapTimes,
-            "lapStrokes": lapStrokes,
-            "fatigueLevel": fatigueLevel,
-            "poolLength": poolLength,
-            "date": ISO8601DateFormatter().string(from: Date())
-        ]
-        
-        // TODO: Send to SwiftLap API
-        print("Workout data to send: \(workoutData)")
-    }
-    
+    // MARK: - Save to SwiftLap
+        private func saveWorkoutToSwiftLap() {
+            guard let swimmerId = APIService.getStoredSwimmerId() else {
+                print("No swimmer ID stored - workout saved locally only")
+                return
+            }
+            
+            let avgHR = heartRates.isEmpty ? 0.0 : heartRates.reduce(0, +) / Double(heartRates.count)
+            
+            APIService.sendWorkout(
+                swimmerId: swimmerId,
+                duration: elapsedSeconds,
+                distance: distance,
+                laps: lapCount,
+                strokeCount: strokeCount,
+                avgHeartRate: avgHR,
+                calories: calories,
+                lapTimes: lapTimes,
+                lapStrokes: lapStrokes,
+                fatigueLevel: fatigueLevel,
+                poolLength: poolLength
+            ) { success, error in
+                if success {
+                    print("Workout synced to SwiftLap!")
+                } else {
+                    print("Failed to sync: \(error ?? "Unknown error")")
+                }
+            }
+        }
     // MARK: - Format Time
     func formatTime(_ seconds: Int) -> String {
         let mins = seconds / 60
