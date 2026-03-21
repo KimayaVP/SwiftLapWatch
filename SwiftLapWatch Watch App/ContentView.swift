@@ -2,18 +2,20 @@
 //  ContentView.swift
 //  SwiftLapWatch Watch App
 //
-//  Created by Kimaya on 20/03/26.
-//
 
 import SwiftUI
 
 struct ContentView: View {
     @StateObject private var workoutManager = WorkoutManager()
     @State private var showingSettings = false
+    @State private var isLoggedIn = APIService.getStoredSwimmerId() != nil
     
     var body: some View {
         NavigationStack {
-            if workoutManager.isWorkoutActive {
+            if !isLoggedIn {
+                // LOGIN SCREEN
+                LoginView(isLoggedIn: $isLoggedIn)
+            } else if workoutManager.isWorkoutActive {
                 // WORKOUT IN PROGRESS
                 ScrollView {
                     VStack(spacing: 12) {
@@ -90,14 +92,18 @@ struct ContentView: View {
                     .buttonStyle(.borderedProminent)
                     .tint(.cyan)
                     
-                    Button(action: { showingSettings = true }) {
-                        HStack {
+                    HStack {
+                        Button(action: { showingSettings = true }) {
                             Image(systemName: "gearshape")
-                            Text("Settings")
                         }
-                        .font(.caption)
+                        .buttonStyle(.bordered)
+                        
+                        Button(action: logout) {
+                            Image(systemName: "rectangle.portrait.and.arrow.right")
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(.red)
                     }
-                    .buttonStyle(.bordered)
                 }
                 .sheet(isPresented: $showingSettings) {
                     SettingsView(poolLength: $workoutManager.poolLength)
@@ -113,6 +119,11 @@ struct ContentView: View {
         case let level where level.contains("Tired"): return .orange
         default: return .red
         }
+    }
+    
+    func logout() {
+        UserDefaults.standard.removeObject(forKey: "swimmerId")
+        isLoggedIn = false
     }
 }
 
