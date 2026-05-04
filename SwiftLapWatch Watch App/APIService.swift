@@ -62,15 +62,17 @@ class APIService {
                 completion(false, error.localizedDescription)
                 return
             }
-            
-            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
+
+            let status = (response as? HTTPURLResponse)?.statusCode ?? -1
+            let body = data.flatMap { String(data: $0, encoding: .utf8) } ?? "<no body>"
+            if status == 200 {
                 completion(true, nil)
             } else {
-                completion(false, "Server error")
+                completion(false, "HTTP \(status): \(body)")
             }
         }.resume()
     }
-    
+
     // Get swimmer ID from stored credentials
     static func getStoredSwimmerId() -> String? {
         return UserDefaults.standard.string(forKey: "swimmerId")
