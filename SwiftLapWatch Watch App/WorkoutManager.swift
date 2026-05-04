@@ -166,6 +166,7 @@ class WorkoutManager: NSObject, ObservableObject {
 
     // MARK: - Timer
     private func startTimer() {
+        timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
             DispatchQueue.main.async {
                 self.elapsedSeconds += 1
