@@ -67,8 +67,8 @@ class WorkoutManager: NSObject, ObservableObject {
         }
     
     // MARK: - Start Workout
-    // MARK: - Start Workout
         func startWorkout() {
+            resetWorkoutState()
             #if targetEnvironment(simulator)
             // Simulator mode - just start timer
             DispatchQueue.main.async {
@@ -156,6 +156,22 @@ class WorkoutManager: NSObject, ObservableObject {
             updateFatigue()
         }
     
+    // MARK: - Reset State
+    private func resetWorkoutState() {
+        elapsedSeconds = 0
+        lapCount = 0
+        distance = 0
+        strokeCount = 0
+        heartRate = 0
+        calories = 0
+        currentPace = "--:--"
+        avgStrokesPerLap = 0
+        fatigueLevel = "Fresh 💪"
+        lapTimes = []
+        lapStrokes = []
+        heartRates = []
+    }
+
     // MARK: - Timer
     private func startTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in

@@ -26,9 +26,7 @@ struct LoginView: View {
                 .multilineTextAlignment(.center)
             
             TextField("Code", text: $linkCode)
-                .textFieldStyle(.roundedBorder)
-                .multilineTextAlignment(.center)
-            
+                .textFieldStyle(.plain)
             if let error = errorMessage {
                 Text(error)
                     .font(.caption2)

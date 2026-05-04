@@ -320,7 +320,10 @@
 				DEVELOPMENT_TEAM = 765BX27Q2Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "SwiftLapWatch-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = SwiftLapWatch;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "SwiftLap needs permission to read your health data during  \n  workouts.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "SwiftLap needs permission to save your workout data to Health.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKWatchOnly = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -354,7 +357,10 @@
 				DEVELOPMENT_TEAM = 765BX27Q2Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "SwiftLapWatch-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = SwiftLapWatch;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "SwiftLap needs permission to read your health data during  \n  workouts.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "SwiftLap needs permission to save your workout data to Health.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKWatchOnly = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
