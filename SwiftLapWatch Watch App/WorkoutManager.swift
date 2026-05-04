@@ -110,7 +110,6 @@ class WorkoutManager: NSObject, ObservableObject {
         }
     
     // MARK: - Stop Workout
-    // MARK: - Stop Workout
         func stopWorkout() {
             #if targetEnvironment(simulator)
             DispatchQueue.main.async {
@@ -120,19 +119,12 @@ class WorkoutManager: NSObject, ObservableObject {
             }
             return
             #else
+            // Just request the session to end. The session delegate's
+            // didChangeTo callback will handle ending collection, finishing the
+            // workout, and saving — once the session is actually in .ended.
+            // Calling endCollection here directly races with session.end() and
+            // produces a "Failed to end" HealthKit error.
             workoutSession?.end()
-            
-            workoutBuilder?.endCollection(withEnd: Date()) { success, error in
-                if success {
-                    self.workoutBuilder?.finishWorkout { workout, error in
-                        DispatchQueue.main.async {
-                            self.isWorkoutActive = false
-                            self.stopTimer()
-                            self.saveWorkoutToSwiftLap()
-                        }
-                    }
-                }
-            }
             #endif
         }
     
@@ -277,7 +269,16 @@ class WorkoutManager: NSObject, ObservableObject {
 // MARK: - HKWorkoutSessionDelegate
 extension WorkoutManager: HKWorkoutSessionDelegate {
     func workoutSession(_ workoutSession: HKWorkoutSession, didChangeTo toState: HKWorkoutSessionState, from fromState: HKWorkoutSessionState, date: Date) {
-        // Handle state changes
+        guard toState == .ended else { return }
+        workoutBuilder?.endCollection(withEnd: date) { _, _ in
+            self.workoutBuilder?.finishWorkout { _, _ in
+                DispatchQueue.main.async {
+                    self.isWorkoutActive = false
+                    self.stopTimer()
+                    self.saveWorkoutToSwiftLap()
+                }
+            }
+        }
     }
     
     func workoutSession(_ workoutSession: HKWorkoutSession, didFailWithError error: Error) {
