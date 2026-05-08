@@ -322,8 +322,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "SwiftLapWatch-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = SwiftLapWatch;
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "SwiftLap needs permission to read your health data during  \n  workouts.";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "SwiftLap needs permission to save your workout data to Health.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "SwiftLap reads your heart rate, swim strokes, and distance to count your laps and tell you when you're getting tired.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "SwiftLap saves your swim workouts to the Health app so they show up alongside your other activity.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKWatchOnly = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -359,8 +359,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "SwiftLapWatch-Watch-App-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = SwiftLapWatch;
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "SwiftLap needs permission to read your health data during  \n  workouts.";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "SwiftLap needs permission to save your workout data to Health.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "SwiftLap reads your heart rate, swim strokes, and distance to count your laps and tell you when you're getting tired.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "SwiftLap saves your swim workouts to the Health app so they show up alongside your other activity.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				INFOPLIST_KEY_WKWatchOnly = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
