@@ -129,21 +129,24 @@ class WorkoutManager: NSObject, ObservableObject {
         }
     
     // MARK: - Mark Lap
-    // MARK: - Mark Lap
+        // The manual flag button records a split time for the lap-so-far.
+        // It does NOT increment lapCount or distance on a real device — those
+        // are owned by HealthKit's distanceSwimming callback, which is more
+        // accurate than user taps. On the simulator there is no HealthKit
+        // pool detection, so we still increment manually for dev testing.
         func markLap() {
             let lapTime = Double(elapsedSeconds) - lapTimes.reduce(0, +)
             lapTimes.append(lapTime)
             lapStrokes.append(strokeCount - lapStrokes.reduce(0, +))
+
+            #if targetEnvironment(simulator)
             lapCount += 1
             distance = Double(lapCount) * poolLength
-            
-            #if targetEnvironment(simulator)
-            // Simulate some data for testing
             heartRate = Double.random(in: 120...160)
             heartRates.append(heartRate)
             strokeCount += Int.random(in: 14...20)
             #endif
-            
+
             updatePace()
             updateFatigue()
         }
