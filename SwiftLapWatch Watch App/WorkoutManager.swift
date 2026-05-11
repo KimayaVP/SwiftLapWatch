@@ -22,7 +22,8 @@ class WorkoutManager: NSObject, ObservableObject {
     @Published var fatigueLevel: String = "Fresh 💪"
     @Published var currentPace: String = "--:--"
     @Published var avgStrokesPerLap: Double = 0
-    
+    @Published var pendingSyncCount: Int = 0
+
     // MARK: - Workout Data
     var poolLength: Double = 25 // meters
     private var workoutStartTime: Date?
@@ -39,6 +40,10 @@ class WorkoutManager: NSObject, ObservableObject {
     override init() {
         super.init()
         requestAuthorization()
+        NotificationCenter.default.addObserver(
+            forName: WKApplication.willEnterForegroundNotification,
+            object: nil, queue: .main
+        ) { [weak self] _ in self?.retryPendingSyncs() }
     }
     
     // MARK: - Authorization
@@ -64,6 +69,7 @@ class WorkoutManager: NSObject, ObservableObject {
                 }
             }
             #endif
+            retryPendingSyncs()
         }
     
     // MARK: - Start Workout
@@ -230,35 +236,67 @@ class WorkoutManager: NSObject, ObservableObject {
             }
         }
     // MARK: - Save to SwiftLap
-    // MARK: - Save to SwiftLap
-        private func saveWorkoutToSwiftLap() {
-            guard let swimmerId = APIService.getStoredSwimmerId() else {
-                print("No swimmer ID stored - workout saved locally only")
-                return
-            }
-            
-            let avgHR = heartRates.isEmpty ? 0.0 : heartRates.reduce(0, +) / Double(heartRates.count)
-            
-            APIService.sendWorkout(
-                swimmerId: swimmerId,
-                duration: elapsedSeconds,
-                distance: distance,
-                laps: lapCount,
-                strokeCount: strokeCount,
-                avgHeartRate: avgHR,
-                calories: calories,
-                lapTimes: lapTimes,
-                lapStrokes: lapStrokes,
-                fatigueLevel: fatigueLevel,
-                poolLength: poolLength
-            ) { success, error in
+    private func saveWorkoutToSwiftLap() {
+        guard let swimmerId = APIService.getStoredSwimmerId() else { return }
+        let avgHR = heartRates.isEmpty ? 0.0 : heartRates.reduce(0, +) / Double(heartRates.count)
+        let payload = WorkoutPayload(
+            swimmerId: swimmerId,
+            duration: elapsedSeconds,
+            distance: distance,
+            laps: lapCount,
+            strokeCount: strokeCount,
+            avgHeartRate: avgHR,
+            calories: calories,
+            lapTimes: lapTimes,
+            lapStrokes: lapStrokes,
+            fatigueLevel: fatigueLevel,
+            poolLength: poolLength,
+            date: ISO8601DateFormatter().string(from: Date()),
+            source: "apple_watch"
+        )
+        APIService.sendWorkout(payload) { [weak self] success, _ in
+            if !success { self?.queueWorkout(payload) }
+        }
+    }
+
+    // MARK: - Pending Sync Queue
+    private var pendingDir: URL {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("pending")
+    }
+
+    private func ensurePendingDir() {
+        try? FileManager.default.createDirectory(at: pendingDir, withIntermediateDirectories: true)
+    }
+
+    private func queueWorkout(_ payload: WorkoutPayload) {
+        ensurePendingDir()
+        let file = pendingDir.appendingPathComponent("\(UUID().uuidString).json")
+        try? JSONEncoder().encode(payload).write(to: file)
+        refreshPendingCount()
+    }
+
+    private func refreshPendingCount() {
+        let count = (try? FileManager.default.contentsOfDirectory(at: pendingDir, includingPropertiesForKeys: nil))?
+            .filter { $0.pathExtension == "json" }.count ?? 0
+        DispatchQueue.main.async { self.pendingSyncCount = count }
+    }
+
+    public func retryPendingSyncs() {
+        ensurePendingDir()
+        guard let files = try? FileManager.default.contentsOfDirectory(at: pendingDir, includingPropertiesForKeys: nil) else { return }
+        for file in files where file.pathExtension == "json" {
+            guard let data = try? Data(contentsOf: file),
+                  let payload = try? JSONDecoder().decode(WorkoutPayload.self, from: data) else { continue }
+            APIService.sendWorkout(payload) { [weak self] success, _ in
                 if success {
-                    print("Workout synced to SwiftLap!")
-                } else {
-                    print("Failed to sync: \(error ?? "Unknown error")")
+                    try? FileManager.default.removeItem(at: file)
+                    self?.refreshPendingCount()
                 }
             }
         }
+    }
+
     // MARK: - Format Time
     func formatTime(_ seconds: Int) -> String {
         let mins = seconds / 60

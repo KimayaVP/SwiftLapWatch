@@ -92,12 +92,21 @@ struct ContentView: View {
                     .buttonStyle(.borderedProminent)
                     .tint(.cyan)
                     
+                    if workoutManager.pendingSyncCount > 0 {
+                        Button(action: { workoutManager.retryPendingSyncs() }) {
+                            Text("↑ \(workoutManager.pendingSyncCount) pending sync\(workoutManager.pendingSyncCount == 1 ? "" : "s")")
+                                .font(.caption2)
+                                .foregroundColor(.orange)
+                        }
+                        .buttonStyle(.plain)
+                    }
+
                     HStack {
                         Button(action: { showingSettings = true }) {
                             Image(systemName: "gearshape")
                         }
                         .buttonStyle(.bordered)
-                        
+
                         Button(action: logout) {
                             Image(systemName: "rectangle.portrait.and.arrow.right")
                         }

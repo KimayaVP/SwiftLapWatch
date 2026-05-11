@@ -5,64 +5,50 @@
 
 import Foundation
 
+struct WorkoutPayload: Codable {
+    let swimmerId: String
+    let duration: Int
+    let distance: Double
+    let laps: Int
+    let strokeCount: Int
+    let avgHeartRate: Double
+    let calories: Double
+    let lapTimes: [Double]
+    let lapStrokes: [Int]
+    let fatigueLevel: String
+    let poolLength: Double
+    let date: String
+    let source: String
+}
+
 class APIService {
     
     // CHANGE THIS to your deployed SwiftLap URL
     static let baseURL = "https://swiftlap.onrender.com"
     
     // Send workout data to SwiftLap
-    static func sendWorkout(
-        swimmerId: String,
-        duration: Int,
-        distance: Double,
-        laps: Int,
-        strokeCount: Int,
-        avgHeartRate: Double,
-        calories: Double,
-        lapTimes: [Double],
-        lapStrokes: [Int],
-        fatigueLevel: String,
-        poolLength: Double,
-        completion: @escaping (Bool, String?) -> Void
-    ) {
+    static func sendWorkout(_ payload: WorkoutPayload, completion: @escaping (Bool, String?) -> Void) {
         guard let url = URL(string: "\(baseURL)/api/watch/workout") else {
             completion(false, "Invalid URL")
             return
         }
-        
+
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        let workoutData: [String: Any] = [
-            "swimmerId": swimmerId,
-            "duration": duration,
-            "distance": distance,
-            "laps": laps,
-            "strokeCount": strokeCount,
-            "avgHeartRate": avgHeartRate,
-            "calories": calories,
-            "lapTimes": lapTimes,
-            "lapStrokes": lapStrokes,
-            "fatigueLevel": fatigueLevel,
-            "poolLength": poolLength,
-            "date": ISO8601DateFormatter().string(from: Date()),
-            "source": "apple_watch"
-        ]
-        
+
         do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: workoutData)
+            request.httpBody = try JSONEncoder().encode(payload)
         } catch {
             completion(false, "Failed to encode data")
             return
         }
-        
+
         URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
                 completion(false, error.localizedDescription)
                 return
             }
-
             let status = (response as? HTTPURLResponse)?.statusCode ?? -1
             let body = data.flatMap { String(data: $0, encoding: .utf8) } ?? "<no body>"
             if status == 200 {
