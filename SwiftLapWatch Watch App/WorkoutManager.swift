@@ -24,7 +24,12 @@ class WorkoutManager: NSObject, ObservableObject {
     @Published var avgStrokesPerLap: Double = 0
     
     // MARK: - Workout Data
-    var poolLength: Double = 25 // meters
+    @Published var poolLength: Double = {
+        let v = UserDefaults.standard.double(forKey: "poolLengthMeters")
+        return v == 0.0 ? 25.0 : v
+    }() {
+        didSet { UserDefaults.standard.set(poolLength, forKey: "poolLengthMeters") }
+    }
     private var workoutStartTime: Date?
     private var lapTimes: [Double] = []
     private var lapStrokes: [Int] = []

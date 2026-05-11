@@ -162,8 +162,10 @@ struct SettingsView: View {
                 .font(.headline)
             
             Picker("Pool", selection: $poolLength) {
-                Text("25m").tag(25.0)
-                Text("50m").tag(50.0)
+                Text("25 m").tag(25.0)
+                Text("50 m").tag(50.0)
+                Text("25 yd").tag(22.86)
+                Text("50 yd").tag(45.72)
             }
             .pickerStyle(.wheel)
             
