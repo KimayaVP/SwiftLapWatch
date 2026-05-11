@@ -38,11 +38,10 @@ class WorkoutManager: NSObject, ObservableObject {
     
     override init() {
         super.init()
-        requestAuthorization()
     }
-    
+
     // MARK: - Authorization
-    func requestAuthorization() {
+    public func requestHealthAccess() {
             #if targetEnvironment(simulator)
             print("Running in simulator - HealthKit limited")
             return
