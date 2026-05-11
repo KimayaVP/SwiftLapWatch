@@ -8,6 +8,7 @@
 import Foundation
 import HealthKit
 import Combine
+import WatchKit
 
 class WorkoutManager: NSObject, ObservableObject {
     
